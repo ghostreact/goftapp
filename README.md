@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## ระบบลงทะเบียนและประเมินนักศึกษาฝึกงาน
 
-## Getting Started
+แอป Next.js สำหรับจัดการข้อมูลฝึกงานที่รวมบทบาทผู้ดูแล ครูนิเทศ ผู้ควบคุมสถานประกอบการ และนักศึกษา พร้อมระบบยืนยันตัวตนแบบ JWT, ฐานข้อมูล MongoDB (ผ่าน Mongoose) และ UI จาก FlyonUI
 
-First, run the development server:
+### จุดเด่น
+- กำหนดสิทธิ์ 4 บทบาท (Admin / Teacher / Supervisor / Student) ด้วยชื่อผู้ใช้และรหัสผ่าน
+- ลงทะเบียนนักศึกษา ครูนิเทศ และผู้ควบคุม รวมถึงรายละเอียดการฝึกงานและผลการประเมิน
+- บันทึกผลประเมินจากครูนิเทศหรือผู้ควบคุม พร้อมสรุปคะแนนเฉลี่ยอัตโนมัติ
+- แดชบอร์ดและแบบฟอร์มแยกตามบทบาท พร้อมกรองข้อมูลตามสิทธิ์อัตโนมัติ
+- สคริปต์ seed ช่วยสร้างบัญชีผู้ดูแลระบบเริ่มต้น
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### เทคโนโลยี
+- Next.js 15 (App Router)
+- MongoDB + Mongoose
+- FlyonUI + Tailwind CSS v4
+- JWT (jsonwebtoken) สำหรับการตรวจสอบสิทธิ์
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### วิธีเริ่มต้น
+1. ตั้งค่าไฟล์ `.env` (หรือใช้ไฟล์ `.env` ที่มีอยู่) ด้วยค่า เช่น
+   ```
+   MONGODB_URI=...
+   JWT_ACCESS_SECRET=...
+   JWT_REFRESH_SECRET=...
+   ACCESS_TOKEN_EXPIRES=15m
+   REFRESH_TOKEN_EXPIRES=30d
+   ADMIN_NAME=Default Admin
+   ADMIN_EMAIL=admin@example.com
+   ADMIN_USERNAME=admin
+  ADMIN_PASSWORD=changeme123
+   ```
+2. ติดตั้ง dependencies
+   ```bash
+   npm install
+   ```
+3. สร้างหรืออัปเดตบัญชีผู้ดูแลระบบ
+   ```bash
+   npm run seed:admin
+   ```
+4. รันโหมดพัฒนา
+   ```bash
+   npm run dev
+   ```
+5. เปิด [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### การเข้าสู่ระบบ
+- **Admin / Teacher / Supervisor**: ใช้ชื่อผู้ใช้ (username) ตามที่กำหนด พร้อมรหัสผ่าน
+- **Student**: ใช้รหัสนักศึกษา (studentId) เป็นชื่อผู้ใช้ และรหัสผ่านที่ได้รับจากครูนิเทศ
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### บทบาทหลัก
+- **Admin**: สร้างบัญชีครูนิเทศและผู้ควบคุม, ตรวจสอบข้อมูลการฝึกงานทั้งหมด
+- **Teacher**: สร้างบัญชีนักศึกษา, ติดตามผลการประเมินและรายละเอียดการฝึกงาน
+- **Supervisor**: บันทึกผลการประเมิน/สถานะ พร้อมสื่อสารกับครูนิเทศ
+- **Student**: ตรวจสอบรายละเอียดการฝึกงานและคะแนนประเมินของตนเอง
 
-## Learn More
+### API สำคัญ
+- `POST /api/auth/login`, `POST /api/auth/logout`, `POST /api/auth/refresh`, `GET /api/auth/me`
+- `POST /api/admin/users` (Admin) สร้างผู้ใช้บทบาทครู/ผู้ควบคุม
+- `POST /api/teacher/students` (Teacher) สร้างนักศึกษา
+- `GET /api/internships`, `POST /api/internships` (Admin/Teacher)
+- `GET /api/evaluations`, `POST /api/evaluations` (Admin/Teacher/Supervisor)
 
-To learn more about Next.js, take a look at the following resources:
+ทุก endpoint จะตรวจสอบสิทธิ์จากคุกกี้ JWT และจำกัดข้อมูลตามบทบาทโดยอัตโนมัติ
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### โครงสร้างที่น่าสนใจ
+- `app/layout.js` — ตั้งค่าธีมและเมนูนำทางหลัก
+- `app/(role)/` — หน้าแดชบอร์ดแยกตามบทบาท (admin/teacher/supervisor/student)
+- `components/auth/` — ฟอร์มเข้าสู่ระบบ
+- `components/admin/`, `components/teacher/`, `components/student/` — แบบฟอร์มและ UI เฉพาะบทบาท
+- `components/dashboard/` — ตาราง/สรุปข้อมูลการฝึกงาน
+- `lib/auth.js` — ฟังก์ชันจัดการรหัสผ่าน JWT และคุกกี้
+- `models/` — สคีมา Mongoose สำหรับ User, Admin, Teacher, Student, Supervisor, Internship, Evaluation
+- `app/api/**` — Route handlers ฝั่งเซิร์ฟเวอร์
+- `scripts/seed-admin.mjs` — สคริปต์ seed บัญชีผู้ดูแล
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### หมายเหตุเพิ่มเติม
+- การเชื่อมต่อ MongoDB ถูก cache ผ่าน `globalThis` เพื่อรองรับสภาพแวดล้อม serverless
+- `middleware.js` ใช้บังคับให้ผู้ใช้เข้าสู่ระบบก่อนเข้าถึงเส้นทางที่มีการจำกัดบทบาท
+- ค่า `ADMIN_USERNAME` ต้องตั้งไว้ก่อนรัน `npm run seed:admin` เพื่อให้แอดมินสามารถเข้าสู่ระบบด้วยชื่อผู้ใช้ได้
