@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 import "dotenv/config";
 import process from "node:process";
-import { connectDB } from "../lib/mongoose.js";
-import { ensureAdmin } from "../lib/ensure-admin.js";
+import { connectDB } from "../lib/mongo.js";
+import { ensureAdmin } from "../lib/ensureAdmin.js";
 
 async function main() {
   try {
-    const connection = await connectDB();
+    const mongooseInstance = await connectDB();
     await ensureAdmin({ force: true });
-    await connection.disconnect();
+    await mongooseInstance.disconnect();
     console.log("[seed-admin] Admin account is ready.");
     process.exit(0);
   } catch (error) {

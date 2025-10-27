@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @plugin "flyonui";
 
+@plugin "flyonui"{
+  themes: light --default, vscode --prefersdark;
+};
+/* 
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -29,4 +33,4 @@ body {
 .page-wrapper {
   min-height: 100vh;
   background: linear-gradient(180deg, rgba(247, 250, 255, 1) 0%, rgba(238, 244, 255, 1) 100%);
-}
+} */

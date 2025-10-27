@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongoose";
+import { connectDB } from "@/lib/mongo";
 import Evaluation from "@/models/Evaluation";
 import Internship from "@/models/Internship";
 import {

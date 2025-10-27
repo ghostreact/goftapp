@@ -13,6 +13,25 @@ function formatDate(value) {
   return dayjs(value).format("DD MMM YYYY");
 }
 
+function formatStudentProgram(student) {
+  if (!student) return "";
+  const parts = [];
+  if (student.level && student.year) {
+    parts.push(`${student.level}${student.year}`);
+  } else if (student.level) {
+    parts.push(student.level);
+  } else if (student.year) {
+    parts.push(`ปี ${student.year}`);
+  }
+  if (student.department) {
+    parts.push(student.department);
+  }
+  if (student.classroom) {
+    parts.push(`ห้อง ${student.classroom}`);
+  }
+  return parts.join(" • ");
+}
+
 export default function InternshipList({
   internships = [],
   selectedId,
@@ -24,10 +43,10 @@ export default function InternshipList({
         <header className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="card-title text-2xl font-semibold">
-              รายการนักศึกษาฝึกงาน
+              รายการการฝึกงาน
             </h2>
             <p className="text-base-content/70">
-              ตรวจสอบสถานะการฝึก งานที่มอบหมาย และสรุปผลการประเมินล่าสุด
+              ตรวจสอบข้อมูลนักศึกษา สถานประกอบการ ครูนิเทศ และสถานะการประเมิน
             </p>
           </div>
         </header>
@@ -38,10 +57,10 @@ export default function InternshipList({
               <tr className="text-sm uppercase text-base-content/60">
                 <th>นักศึกษา</th>
                 <th>สถานประกอบการ</th>
-                <th>ช่วงเวลา</th>
+                <th>ช่วงฝึกงาน</th>
                 <th>ครูนิเทศ</th>
                 <th>สถานะ</th>
-                <th>สรุปการประเมิน</th>
+                <th>สรุปผลประเมิน</th>
                 <th />
               </tr>
             </thead>
@@ -65,13 +84,9 @@ export default function InternshipList({
                         {item.student?.name || "-"}
                       </div>
                       <div className="text-sm text-base-content/60">
-                        {item.student?.major
-                          ? `${item.student.major} ${
-                              item.student.year
-                                ? `• ปี ${item.student.year}`
-                                : ""
-                            }`
-                          : item.student?.email}
+                        {formatStudentProgram(item.student) ||
+                          item.student?.email ||
+                          "-"}
                       </div>
                     </td>
                     <td>
@@ -137,28 +152,28 @@ export default function InternshipList({
 function EvaluationSummary({ summary }) {
   const items = [
     {
-      label: "เทคนิค",
+      label: "ทักษะ",
       value:
         summary.averageTechnical !== undefined
           ? summary.averageTechnical
           : "-",
     },
     {
-      label: "มืออาชีพ",
+      label: "ความเป็นมืออาชีพ",
       value:
         summary.averageProfessionalism !== undefined
           ? summary.averageProfessionalism
           : "-",
     },
     {
-      label: "สื่อสาร",
+      label: "การสื่อสาร",
       value:
         summary.averageCommunication !== undefined
           ? summary.averageCommunication
           : "-",
     },
     {
-      label: "แก้ปัญหา",
+      label: "การแก้ปัญหา",
       value:
         summary.averageProblemSolving !== undefined
           ? summary.averageProblemSolving
@@ -169,13 +184,13 @@ function EvaluationSummary({ summary }) {
   return (
     <div className="grid gap-1">
       <div className="flex flex-wrap items-center gap-2 text-xs text-base-content/60">
-        <span>ครู:</span>
+        <span>ครูนิเทศ:</span>
         <span className="badge badge-outline">
-          {summary.teacherCount || 0} ฉบับ
+          {summary.teacherCount || 0} รายการ
         </span>
         <span>ผู้ควบคุม:</span>
         <span className="badge badge-outline">
-          {summary.supervisorCount || 0} ฉบับ
+          {summary.supervisorCount || 0} รายการ
         </span>
       </div>
       <div className="grid grid-cols-2 gap-2 text-xs">
@@ -200,9 +215,9 @@ function EvaluationSummary({ summary }) {
 function translateStatus(status) {
   switch (status) {
     case "pending":
-      return "รอเริ่ม";
+      return "รอดำเนินการ";
     case "active":
-      return "กำลังฝึก";
+      return "กำลังดำเนินการ";
     case "completed":
       return "เสร็จสิ้น";
     default:

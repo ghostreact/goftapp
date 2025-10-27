@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongoose";
+import { connectDB } from "@/lib/mongo";
 import User from "@/models/User";
 import Student from "@/models/Student";
+import "@/models/Teacher";
+import "@/models/Supervisor";
 import {
   comparePassword,
   serializeUser,

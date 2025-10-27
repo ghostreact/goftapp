@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongoose";
+import { connectDB } from "@/lib/mongo";
 import Internship from "@/models/Internship";
 import Student from "@/models/Student";
 import Teacher from "@/models/Teacher";
@@ -217,10 +217,10 @@ export async function POST(request) {
         $set: {
           name: student.name,
           phone: student.phone,
-          university: student.university,
-          faculty: student.faculty,
-          major: student.major,
+          level: student.level,
           year: student.year,
+          department: student.department,
+          classroom: student.classroom,
           teacher: teacherDoc._id,
         },
       },
@@ -283,6 +283,16 @@ export async function POST(request) {
             ? Number.parseInt(internship.weeklyHours, 10)
             : null;
 
+    if (!startDate) {
+      return NextResponse.json(
+        {
+          error:
+            "กรุณาระบุวันที่เริ่มฝึกงานให้ถูกต้อง (รูปแบบ YYYY-MM-DD)",
+        },
+        { status: 400 }
+      );
+    }
+
     const internshipDoc = await Internship.create({
       student: studentDoc._id,
       teacher: teacherDoc._id,
@@ -299,10 +309,11 @@ export async function POST(request) {
       notes: internship?.notes,
     });
 
-    const populated = await internshipDoc
-      .populate("student")
-      .populate("teacher")
-      .populate("supervisor");
+    const populated = await internshipDoc.populate([
+      { path: "student" },
+      { path: "teacher" },
+      { path: "supervisor" },
+    ]);
 
     return NextResponse.json(
       {

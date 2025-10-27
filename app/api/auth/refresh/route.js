@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongoose";
+import { connectDB } from "@/lib/mongo";
 import User from "@/models/User";
 import {
   REFRESH_TOKEN_COOKIE,

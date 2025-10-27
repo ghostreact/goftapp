@@ -2,15 +2,21 @@
 
 import { useState } from "react";
 
+const LEVEL_OPTIONS = ["ปวช.", "ปวส."];
+const YEAR_BY_LEVEL = {
+  "ปวช.": ["1", "2", "3"],
+  "ปวส.": ["1", "2"],
+};
+
 const INITIAL_FORM = {
   student: {
     name: "",
     email: "",
     phone: "",
-    university: "",
-    faculty: "",
-    major: "",
+    level: "",
     year: "",
+    department: "",
+    classroom: "",
   },
   teacher: {
     name: "",
@@ -53,13 +59,29 @@ export default function InternshipRegistrationForm({ onSuccess }) {
 
   const updateSection = (section, field) => (event) => {
     const value = event.target.value;
-    setFormData((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: value,
-      },
-    }));
+    setFormData((prev) => {
+      if (section === "student" && field === "level") {
+        const yearOptions = YEAR_BY_LEVEL[value] || [];
+        return {
+          ...prev,
+          student: {
+            ...prev.student,
+            level: value,
+            year: yearOptions.includes(prev.student.year)
+              ? prev.student.year
+              : yearOptions[0] ?? "",
+          },
+        };
+      }
+
+      return {
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [field]: value,
+        },
+      };
+    });
   };
 
   const resetForm = () => {
@@ -80,12 +102,10 @@ export default function InternshipRegistrationForm({ onSuccess }) {
               ? null
               : Number(formData.student.year),
         },
-        teacher: formData.teacher,
-        supervisor: formData.supervisor,
+        teacher: { ...formData.teacher },
+        supervisor: { ...formData.supervisor },
         internship: {
           ...formData.internship,
-          focusAreas: formData.internship.focusAreas,
-          deliverables: formData.internship.deliverables,
           weeklyHours:
             formData.internship.weeklyHours === ""
               ? null
@@ -102,12 +122,15 @@ export default function InternshipRegistrationForm({ onSuccess }) {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "ไม่สามารถบันทึกข้อมูลได้");
+        throw new Error(
+          result.error ||
+            "ไม่สามารถบันทึกข้อมูลการฝึกงานได้ กรุณาตรวจสอบอีกครั้ง"
+        );
       }
 
       setFeedback({
         type: "success",
-        message: result.message || "บันทึกข้อมูลการฝึกงานสำเร็จ",
+        message: result.message || "บันทึกข้อมูลการฝึกงานเรียบร้อยแล้ว",
       });
 
       resetForm();
@@ -116,12 +139,16 @@ export default function InternshipRegistrationForm({ onSuccess }) {
       console.error("Registration error", error);
       setFeedback({
         type: "error",
-        message: error.message || "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+        message:
+          error.message ||
+          "เกิดข้อผิดพลาดระหว่างบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const studentYearOptions = YEAR_BY_LEVEL[formData.student.level] || [];
 
   const feedbackClass =
     feedback?.type === "success"
@@ -135,11 +162,11 @@ export default function InternshipRegistrationForm({ onSuccess }) {
       <div className="card-body gap-8">
         <div>
           <h2 className="card-title text-2xl font-semibold">
-            ลงทะเบียนนักศึกษาฝึกงาน
+            ลงทะเบียนข้อมูลการฝึกงาน
           </h2>
           <p className="text-base-content/70">
-            กรอกรายละเอียดของนักศึกษา ครูนิเทศ และผู้ควบคุมจากสถานประกอบการ
-            เพื่อบันทึกการฝึกงานเข้าสู่ระบบ
+            ฟอร์มเดียวสำหรับเก็บข้อมูลนักศึกษา ครูนิเทศ ผู้ควบคุม และรายละเอียด
+            โครงการ เพื่อให้ระบบเริ่มติดตามได้ทันที
           </p>
         </div>
 
@@ -150,10 +177,10 @@ export default function InternshipRegistrationForm({ onSuccess }) {
         )}
 
         <form className="grid gap-8" onSubmit={handleSubmit}>
-          <Section title="ข้อมูลนักศึกษา">
+          <Section title="ข้อมูลนักศึกษา (อาชีวศึกษา)">
             <div className="grid gap-6 md:grid-cols-2">
               <Input
-                label="ชื่อ-นามสกุล"
+                label="ชื่อ - นามสกุล"
                 required
                 value={formData.student.name}
                 onChange={updateSection("student", "name")}
@@ -170,36 +197,52 @@ export default function InternshipRegistrationForm({ onSuccess }) {
                 value={formData.student.phone}
                 onChange={updateSection("student", "phone")}
               />
-              <Input
-                label="มหาวิทยาลัย"
-                value={formData.student.university}
-                onChange={updateSection("student", "university")}
-              />
-              <Input
-                label="คณะ"
-                value={formData.student.faculty}
-                onChange={updateSection("student", "faculty")}
-              />
-              <Input
-                label="สาขาวิชา"
-                value={formData.student.major}
-                onChange={updateSection("student", "major")}
-              />
-              <Input
+              <Select
+                label="ระดับ"
+                required
+                value={formData.student.level}
+                onChange={updateSection("student", "level")}
+              >
+                <option value="">เลือกระดับ</option>
+                {LEVEL_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </Select>
+              <Select
                 label="ชั้นปี"
-                type="number"
-                min="1"
-                max="8"
+                required
                 value={formData.student.year}
                 onChange={updateSection("student", "year")}
+                disabled={!formData.student.level}
+              >
+                <option value="">เลือกชั้นปี</option>
+                {studentYearOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </Select>
+              <Input
+                label="แผนก"
+                required
+                value={formData.student.department}
+                onChange={updateSection("student", "department")}
+              />
+              <Input
+                label="ห้อง"
+                required
+                value={formData.student.classroom}
+                onChange={updateSection("student", "classroom")}
               />
             </div>
           </Section>
 
-          <Section title="ข้อมูลครูนิเทศ (สถาบันการศึกษา)">
+          <Section title="ข้อมูลครูนิเทศ (สำหรับติดต่อ)">
             <div className="grid gap-6 md:grid-cols-2">
               <Input
-                label="ชื่อ-นามสกุล"
+                label="ชื่อ - นามสกุล"
                 required
                 value={formData.teacher.name}
                 onChange={updateSection("teacher", "name")}
@@ -217,7 +260,7 @@ export default function InternshipRegistrationForm({ onSuccess }) {
                 onChange={updateSection("teacher", "phone")}
               />
               <Input
-                label="ภาควิชา / สาขา"
+                label="แผนก"
                 value={formData.teacher.department}
                 onChange={updateSection("teacher", "department")}
               />
@@ -227,7 +270,7 @@ export default function InternshipRegistrationForm({ onSuccess }) {
           <Section title="ข้อมูลผู้ควบคุม (สถานประกอบการ)">
             <div className="grid gap-6 md:grid-cols-2">
               <Input
-                label="ชื่อ-นามสกุล"
+                label="ชื่อ - นามสกุล"
                 required
                 value={formData.supervisor.name}
                 onChange={updateSection("supervisor", "name")}
@@ -251,32 +294,32 @@ export default function InternshipRegistrationForm({ onSuccess }) {
               />
               <Input
                 label="ชื่อสถานประกอบการ"
-                required
                 value={formData.supervisor.companyName}
                 onChange={updateSection("supervisor", "companyName")}
               />
             </div>
           </Section>
 
-          <Section title="รายละเอียดการฝึกงาน">
+          <Section title="รายละเอียดโครงการฝึกงาน">
             <div className="grid gap-6 md:grid-cols-2">
               <Input
-                label="หัวข้อโครงการ / ตำแหน่งฝึกงาน"
+                label="ชื่อโครงการ"
                 value={formData.internship.projectTitle}
                 onChange={updateSection("internship", "projectTitle")}
               />
               <Select
-                label="สถานะการฝึกงาน"
+                label="สถานะ"
                 value={formData.internship.status}
                 onChange={updateSection("internship", "status")}
               >
-                <option value="pending">รอเริ่ม</option>
-                <option value="active">กำลังฝึก</option>
+                <option value="pending">รอดำเนินการ</option>
+                <option value="active">กำลังดำเนินการ</option>
                 <option value="completed">เสร็จสิ้น</option>
               </Select>
               <Input
-                label="วันที่เริ่ม"
+                label="วันที่เริ่มฝึกงาน"
                 type="date"
+                required
                 value={formData.internship.startDate}
                 onChange={updateSection("internship", "startDate")}
               />
@@ -287,31 +330,31 @@ export default function InternshipRegistrationForm({ onSuccess }) {
                 onChange={updateSection("internship", "endDate")}
               />
               <Input
-                label="ชั่วโมงฝึกต่อสัปดาห์"
+                label="ชั่วโมงต่อสัปดาห์"
                 type="number"
                 min="0"
                 value={formData.internship.weeklyHours}
                 onChange={updateSection("internship", "weeklyHours")}
               />
               <Input
-                label="ประเด็น / ทักษะที่เน้น (คั่นด้วยจุลภาค)"
+                label="ทักษะ/หัวข้อที่ต้องการเน้น (คั่นด้วย ,)"
                 value={formData.internship.focusAreas}
                 onChange={updateSection("internship", "focusAreas")}
               />
               <Input
-                label="ผลลัพธ์ที่คาดหวัง (คั่นด้วยจุลภาค)"
+                label="ผลงานหรือ Deliverables (คั่นด้วย ,)"
                 value={formData.internship.deliverables}
                 onChange={updateSection("internship", "deliverables")}
               />
             </div>
             <Textarea
-              label="วัตถุประสงค์โดยรวม"
+              label="วัตถุประสงค์"
               rows={3}
               value={formData.internship.objectives}
               onChange={updateSection("internship", "objectives")}
             />
             <Textarea
-              label="หน้าที่ / งานที่มอบหมาย"
+              label="หน้าที่และความรับผิดชอบ"
               rows={3}
               value={formData.internship.responsibilities}
               onChange={updateSection("internship", "responsibilities")}

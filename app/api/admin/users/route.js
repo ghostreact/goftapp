@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongoose";
+import { connectDB } from "@/lib/mongo";
 import User from "@/models/User";
 import Teacher from "@/models/Teacher";
 import Supervisor from "@/models/Supervisor";
@@ -137,10 +137,19 @@ export async function POST(request) {
         { status: 201 }
       );
     } catch (error) {
-      await session.abortTransaction();
+      if (session.inTransaction()) {
+        try {
+          await session.abortTransaction();
+        } catch (abortError) {
+          console.error(
+            "POST /api/admin/users abortTransaction failed:",
+            abortError
+          );
+        }
+      }
       throw error;
     } finally {
-      session.endSession();
+      await session.endSession();
     }
   } catch (error) {
     console.error("POST /api/admin/users error:", error);

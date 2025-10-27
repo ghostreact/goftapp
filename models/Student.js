@@ -30,22 +30,46 @@ const StudentSchema = new Schema(
       unique: true,
       trim: true,
     },
-    university: {
+    level: {
       type: String,
-      trim: true,
-    },
-    faculty: {
-      type: String,
-      trim: true,
-    },
-    major: {
-      type: String,
+      enum: ["ปวช.", "ปวส."],
+      required: true,
       trim: true,
     },
     year: {
       type: Number,
       min: 1,
-      max: 8,
+      required: true,
+      validate: {
+        validator(value) {
+          if (this.level === "ปวช.") {
+            return value >= 1 && value <= 3;
+          }
+          if (this.level === "ปวส.") {
+            return value >= 1 && value <= 2;
+          }
+          return false;
+        },
+        message() {
+          if (this.level === "ปวช.") {
+            return "ชั้นปีของ ปวช. ต้องอยู่ระหว่าง 1-3";
+          }
+          if (this.level === "ปวส.") {
+            return "ชั้นปีของ ปวส. ต้องอยู่ระหว่าง 1-2";
+          }
+          return "ระดับและชั้นปีไม่สอดคล้องกัน";
+        },
+      },
+    },
+    department: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    classroom: {
+      type: String,
+      required: true,
+      trim: true,
     },
     teacher: {
       type: Schema.Types.ObjectId,

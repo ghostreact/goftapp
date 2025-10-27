@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongoose";
+import { connectDB } from "@/lib/mongo";
 import User from "@/models/User";
 import Student from "@/models/Student";
 import {
@@ -11,12 +11,30 @@ import {
 } from "@/lib/auth";
 
 function validateStudentPayload(body) {
-  const missing = [];
-  if (!body.name) missing.push("name");
-  if (!body.email) missing.push("email");
-  if (!body.studentId) missing.push("studentId");
-  if (!body.password || body.password.length < 8) missing.push("password");
-  return missing;
+  const errors = new Set();
+  if (!body.name?.trim()) errors.add("name");
+  if (!body.email?.trim()) errors.add("email");
+  if (!body.studentId?.trim()) errors.add("studentId");
+  if (!body.password || body.password.length < 8) errors.add("password");
+  if (!body.level?.trim()) errors.add("level");
+  if (!body.year) errors.add("year");
+  if (!body.department?.trim()) errors.add("department");
+  if (!body.classroom?.trim()) errors.add("classroom");
+
+  const validLevels = ["ปวช.", "ปวส."];
+  const normalizedLevel = body.level?.trim();
+  if (normalizedLevel && !validLevels.includes(normalizedLevel)) {
+    errors.add("level");
+  }
+
+  if (body.year) {
+    const numericYear = Number(body.year);
+    if (!Number.isFinite(numericYear) || numericYear < 1 || numericYear > 3) {
+      errors.add("year");
+    }
+  }
+
+  return Array.from(errors);
 }
 
 export async function POST(request) {
@@ -50,6 +68,9 @@ export async function POST(request) {
     const email = body.email.trim().toLowerCase();
     const studentId = body.studentId.trim();
     const username = studentId.toLowerCase();
+    const level = body.level?.trim();
+    const department = body.department?.trim();
+    const classroom = body.classroom?.trim();
 
     await connectDB();
 
@@ -92,6 +113,8 @@ export async function POST(request) {
         { session }
       );
 
+      const numericYear = Number(body.year);
+
       const [profile] = await Student.create(
         [
           {
@@ -100,10 +123,10 @@ export async function POST(request) {
             email,
             phone: body.phone || "",
             studentId,
-            university: body.university || "",
-            faculty: body.faculty || "",
-            major: body.major || "",
-            year: body.year ? Number(body.year) : undefined,
+            level,
+            year: numericYear,
+            department,
+            classroom,
             teacher: teacherProfile._id,
           },
         ],

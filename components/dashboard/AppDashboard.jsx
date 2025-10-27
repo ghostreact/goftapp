@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import InternshipRegistrationForm from "@/components/forms/InternshipRegistrationForm";
 import EvaluationForm from "@/components/forms/EvaluationForm";
 import InternshipList from "@/components/dashboard/InternshipList";
 import InternshipSnapshot from "@/components/dashboard/InternshipSnapshot";
@@ -77,15 +77,6 @@ export default function AppDashboard() {
     loadUser();
   }, []);
 
-  const handleRegistrationSuccess = (record) => {
-    const prepared = {
-      ...record,
-      evaluationSummary: record.evaluationSummary || null,
-    };
-    setInternships((prev) => [prepared, ...prev]);
-    setSelected(prepared);
-  };
-
   const handleEvaluationSuccess = async () => {
     await loadInternships();
   };
@@ -156,7 +147,12 @@ export default function AppDashboard() {
           )}
 
           {canRegisterInternship && (
-            <InternshipRegistrationForm onSuccess={handleRegistrationSuccess} />
+            <QuickActionCard
+              title="ลงทะเบียนการฝึกงานใหม่"
+              description="จัดเก็บข้อมูลนักศึกษา ครูนิเทศ และผู้ควบคุมในฟอร์มเดียว พร้อมระบุรายละเอียดโครงการและเป้าหมายที่ต้องการ"
+              href="/teacher/internships/register"
+              cta="ไปยังฟอร์มลงทะเบียน"
+            />
           )}
         </div>
 
@@ -240,6 +236,24 @@ function getRoleDescription(role) {
   }
 }
 
+function QuickActionCard({ title, description, href, cta }) {
+  return (
+    <div className="card border border-dashed border-primary/40 bg-primary/5">
+      <div className="card-body gap-4">
+        <div>
+          <h3 className="text-xl font-semibold text-base-content">{title}</h3>
+          <p className="mt-1 text-base text-base-content/70">{description}</p>
+        </div>
+        <div>
+          <Link href={href} className="btn btn-primary btn-sm md:btn-md">
+            {cta}
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function LoadingPlaceholder() {
   return (
     <div className="card border border-base-200 bg-base-100 shadow-sm">
@@ -254,3 +268,4 @@ function LoadingPlaceholder() {
     </div>
   );
 }
+

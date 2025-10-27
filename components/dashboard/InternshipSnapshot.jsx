@@ -7,7 +7,7 @@ export default function InternshipSnapshot({ data }) {
     return (
       <div className="card bg-base-100 border border-dashed border-base-200 shadow-sm">
         <div className="card-body items-center justify-center text-center text-base-content/60">
-          <p>เลือกนักศึกษาจากรายการเพื่อดูรายละเอียดการฝึกงาน</p>
+          <p>ยังไม่มีข้อมูลการฝึกงานให้แสดงผล</p>
         </div>
       </div>
     );
@@ -18,14 +18,10 @@ export default function InternshipSnapshot({ data }) {
       <div className="card-body gap-6">
         <header className="space-y-1">
           <h2 className="card-title text-2xl font-semibold">
-            {data.student?.name || "ไม่ระบุชื่อ"}
+            {data.student?.name || "ไม่พบนักศึกษา"}
           </h2>
           <p className="text-base-content/70">
-            {data.student?.major
-              ? `${data.student.major} ${
-                  data.student.year ? `ปี ${data.student.year}` : ""
-                }`
-              : data.student?.email}
+            {formatStudentProgram(data.student) || data.student?.email}
           </p>
         </header>
 
@@ -44,14 +40,16 @@ export default function InternshipSnapshot({ data }) {
             }
           />
           <Row
-            label="ช่วงเวลาฝึก"
-            value={`${formatDate(data.startDate)} ถึง ${formatDate(
+            label="ช่วงการฝึกงาน"
+            value={`${formatDate(data.startDate)} - ${formatDate(
               data.endDate
             )}`}
           />
           <Row
             label="ชั่วโมงต่อสัปดาห์"
-            value={data.weeklyHours ? `${data.weeklyHours} ชั่วโมง` : "-"}
+            value={
+              data.weeklyHours ? `${data.weeklyHours} ชั่วโมง` : "-"
+            }
           />
           <Row
             label="ครูนิเทศ"
@@ -69,7 +67,7 @@ export default function InternshipSnapshot({ data }) {
         {Boolean(data.focusAreas?.length) && (
           <section>
             <h3 className="text-base font-semibold text-base-content">
-              ทักษะเป้าหมาย
+              ทักษะ/หัวข้อที่ต้องการเน้น
             </h3>
             <div className="mt-2 flex flex-wrap gap-2">
               {data.focusAreas.map((item) => (
@@ -95,7 +93,7 @@ export default function InternshipSnapshot({ data }) {
         {data.responsibilities && (
           <section>
             <h3 className="text-base font-semibold text-base-content">
-              หน้าที่รับผิดชอบ
+              หน้าที่และความรับผิดชอบ
             </h3>
             <p className="mt-2 whitespace-pre-line text-sm leading-6 text-base-content/80">
               {data.responsibilities}
@@ -107,12 +105,31 @@ export default function InternshipSnapshot({ data }) {
           <EvaluationOverview summary={data.evaluationSummary} />
         ) : (
           <div className="rounded-box border border-dashed border-primary/50 bg-primary/5 p-4 text-sm text-primary">
-            ยังไม่มีผลการประเมินในรายการนี้
+            ยังไม่มีการประเมินจากครูนิเทศหรือผู้ควบคุม
           </div>
         )}
       </div>
     </div>
   );
+}
+
+function formatStudentProgram(student) {
+  if (!student) return "";
+  const parts = [];
+  if (student.level && student.year) {
+    parts.push(`${student.level}${student.year}`);
+  } else if (student.level) {
+    parts.push(student.level);
+  } else if (student.year) {
+    parts.push(`ปี ${student.year}`);
+  }
+  if (student.department) {
+    parts.push(student.department);
+  }
+  if (student.classroom) {
+    parts.push(`ห้อง ${student.classroom}`);
+  }
+  return parts.join(" • ");
 }
 
 function Row({ label, value }) {
@@ -145,19 +162,22 @@ function EvaluationOverview({ summary }) {
         </div>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-        <Field label="เทคนิค" value={summary.averageTechnical ?? "-"} />
+        <Field label="ทักษะ" value={summary.averageTechnical ?? "-"} />
         <Field
           label="ความเป็นมืออาชีพ"
           value={summary.averageProfessionalism ?? "-"}
         />
-        <Field label="การสื่อสาร" value={summary.averageCommunication ?? "-"} />
+        <Field
+          label="การสื่อสาร"
+          value={summary.averageCommunication ?? "-"}
+        />
         <Field
           label="การแก้ปัญหา"
           value={summary.averageProblemSolving ?? "-"}
         />
       </div>
       <div className="mt-4 text-xs text-base-content/60">
-        ล่าสุด {summary.lastSubmittedAt ? formatDate(summary.lastSubmittedAt) : "-"}
+        อัปเดตล่าสุด {summary.lastSubmittedAt ? formatDate(summary.lastSubmittedAt) : "-"}
       </div>
     </section>
   );
