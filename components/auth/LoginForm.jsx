@@ -1,11 +1,11 @@
-'use client';
+﻿'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const INITIAL_FORM = {
-  username: "",
-  password: "",
+  username: '',
+  password: '',
 };
 
 export default function LoginForm() {
@@ -25,41 +25,34 @@ export default function LoginForm() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
 
       const result = await response.json();
-
       if (!response.ok) {
-        throw new Error(result.error || "ไม่สามารถเข้าสู่ระบบได้");
+        throw new Error(result.error || 'ไม่สามารถเข้าสู่ระบบได้');
       }
 
       const roleRedirect = getRedirectPath(result.user?.role);
       router.push(roleRedirect);
       router.refresh();
     } catch (err) {
-      setError(err.message || "เกิดข้อผิดพลาด กรุณาลองใหม่");
+      setError(err.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <form
-      className="card border border-base-200 bg-base-100 shadow-lg"
-      onSubmit={handleSubmit}
-    >
+    <form className="card border border-base-200 bg-base-100 shadow-lg" onSubmit={handleSubmit}>
       <div className="card-body space-y-6">
         <div className="space-y-2 text-center">
-          <h1 className="text-3xl font-semibold text-base-content">
-            เข้าสู่ระบบ
-          </h1>
+          <h1 className="text-3xl font-semibold text-base-content">เข้าสู่ระบบ</h1>
           <p className="text-base text-base-content/70">
-            ผู้ดูแล ครู และผู้ควบคุมใช้ชื่อผู้ใช้ ส่วน นักศึกษากรอกรหัสนักศึกษา
-            พร้อมรหัสผ่านที่ได้รับ
+            กรอกชื่อผู้ใช้และรหัสผ่านเพื่อเข้าสู่ระบบบริหารจัดการการฝึกงาน
           </p>
         </div>
 
@@ -71,9 +64,7 @@ export default function LoginForm() {
 
         <label className="form-control">
           <div className="label">
-            <span className="label-text font-medium">
-              ชื่อผู้ใช้ / รหัสนักศึกษา
-            </span>
+            <span className="label-text font-medium">ชื่อผู้ใช้ / รหัสนักศึกษา</span>
           </div>
           <input
             type="text"
@@ -90,7 +81,7 @@ export default function LoginForm() {
           <div className="label">
             <span className="label-text font-medium">รหัสผ่าน</span>
           </div>
-        <input
+          <input
             type="password"
             name="password"
             required
@@ -101,12 +92,8 @@ export default function LoginForm() {
           />
         </label>
 
-        <button
-          type="submit"
-          className="btn btn-primary w-full"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "กำลังตรวจสอบ..." : "เข้าสู่ระบบ"}
+        <button type="submit" className="btn btn-primary w-full" disabled={isSubmitting}>
+          {isSubmitting ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
         </button>
       </div>
     </form>
@@ -115,15 +102,15 @@ export default function LoginForm() {
 
 function getRedirectPath(role) {
   switch (role) {
-    case "admin":
-      return "/admin";
-    case "teacher":
-      return "/teacher";
-    case "supervisor":
-      return "/supervisor";
-    case "student":
-      return "/student";
+    case 'admin':
+      return '/admin';
+    case 'teacher':
+      return '/teacher';
+    case 'workplace':
+      return '/workplace';
+    case 'student':
+      return '/student';
     default:
-      return "/";
+      return '/';
   }
 }

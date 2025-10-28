@@ -1,6 +1,11 @@
-'use client';
+﻿"use client";
 
 import { useMemo, useState } from "react";
+
+const ROLE_OPTIONS = [
+  { value: "teacher", label: "ครูนิเทศ" },
+  { value: "workplace", label: "ผู้ดูแลจากสถานประกอบการ" },
+];
 
 const INITIAL_FORM = {
   role: "teacher",
@@ -11,30 +16,24 @@ const INITIAL_FORM = {
   phone: "",
   department: "",
   companyName: "",
-  position: "",
-};
-
-const roleConfig = {
-  teacher: {
-    label: "ครูนิเทศ",
-    description:
-      "สร้างบัญชีสำหรับครูนิเทศในสถาบันการศึกษา เพื่อจัดการนักศึกษาและติดตามฝึกงาน",
-    fields: ["department", "phone"],
-  },
-  supervisor: {
-    label: "ผู้ควบคุม (สถานประกอบการ)",
-    description:
-      "สร้างบัญชีสำหรับผู้ควบคุมในสถานประกอบการ เพื่อติดตามและประเมินนักศึกษา",
-    fields: ["companyName", "position", "phone"],
-  },
+  contactName: "",
+  contactEmail: "",
+  contactPhone: "",
+  contactPosition: "",
+  branchName: "",
+  address: "",
+  notes: "",
 };
 
 export default function AdminUserForm() {
-  const [form, setForm] = useState(INITIAL_FORM);
+  const [form, setForm] = useState({ ...INITIAL_FORM });
   const [feedback, setFeedback] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const config = useMemo(() => roleConfig[form.role], [form.role]);
+  const roleConfig = useMemo(
+    () => ROLE_OPTIONS.find((item) => item.value === form.role),
+    [form.role]
+  );
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -48,7 +47,13 @@ export default function AdminUserForm() {
       role,
       department: "",
       companyName: "",
-      position: "",
+      contactName: "",
+      contactEmail: "",
+      contactPhone: "",
+      contactPosition: "",
+      branchName: "",
+      address: "",
+      notes: "",
     }));
   };
 
@@ -67,18 +72,18 @@ export default function AdminUserForm() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "ไม่สามารถสร้างบัญชีได้");
+        throw new Error(result.error || "ไม่สามารถสร้างบัญชีผู้ใช้ได้");
       }
 
       setFeedback({
         type: "success",
-        message: result.message || "สร้างบัญชีสำเร็จ",
+        message: result.message || "สร้างบัญชีผู้ใช้เรียบร้อย",
       });
       setForm({ ...INITIAL_FORM, role: form.role });
     } catch (error) {
       setFeedback({
         type: "error",
-        message: error.message || "เกิดข้อผิดพลาด กรุณาลองใหม่",
+        message: error.message || "เกิดข้อผิดพลาดในการสร้างบัญชีผู้ใช้",
       });
     } finally {
       setIsSubmitting(false);
@@ -88,30 +93,29 @@ export default function AdminUserForm() {
   return (
     <form className="card border border-base-200 bg-base-100 shadow-sm" onSubmit={handleSubmit}>
       <div className="card-body space-y-6">
-        <div className="space-y-2">
+        <header className="space-y-2">
           <h2 className="card-title text-2xl font-semibold text-base-content">
-            สร้างบัญชีผู้ใช้งานใหม่
+            สร้างบัญชีผู้ใช้ใหม่
           </h2>
           <p className="text-base text-base-content/70">
-            เลือกบทบาทผู้ใช้ที่ต้องการสร้าง และกรอกข้อมูลพื้นฐานเพื่อสร้างบัญชีเข้าสู่ระบบ
+            เลือกบทบาทที่ต้องการและกรอกข้อมูลให้ครบถ้วน เพื่อให้ครูนิเทศหรือผู้ดูแลจากสถานประกอบการเข้าสู่ระบบได้ทันที
           </p>
-        </div>
+        </header>
 
         {feedback && (
           <div
             className={`alert ${
               feedback.type === "success" ? "alert-success" : "alert-error"
             }`}
-            role="alert"
           >
             <span>{feedback.message}</span>
           </div>
         )}
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <label className="form-control">
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="form-control md:col-span-2">
             <div className="label">
-              <span className="label-text font-medium">ประเภทผู้ใช้</span>
+              <span className="label-text font-medium">บทบาทผู้ใช้</span>
             </div>
             <select
               name="role"
@@ -119,135 +123,117 @@ export default function AdminUserForm() {
               value={form.role}
               onChange={handleRoleChange}
             >
-              <option value="teacher">ครูนิเทศ</option>
-              <option value="supervisor">ผู้ควบคุม (สถานประกอบการ)</option>
+              {ROLE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
-            <div className="label">
-              <span className="label-text-alt text-base-content/60">
-                {config?.description}
-              </span>
-            </div>
           </label>
 
-          <label className="form-control">
-            <div className="label">
-              <span className="label-text font-medium">ชื่อ-นามสกุล</span>
-            </div>
-            <input
-              name="name"
-              required
-              className="input input-bordered"
-              value={form.name}
-              onChange={handleChange}
-            />
-          </label>
-
-          <label className="form-control">
-            <div className="label">
-              <span className="label-text font-medium">
-                ชื่อผู้ใช้สำหรับเข้าระบบ
-              </span>
-            </div>
-            <input
-              name="username"
-              required
-              className="input input-bordered"
-              value={form.username}
-              onChange={handleChange}
-            />
-            <div className="label">
-              <span className="label-text-alt text-base-content/60">
-                ใช้ตัวอักษร/ตัวเลขต่อเนื่อง (ระบบไม่สนใจตัวพิมพ์เล็กใหญ่)
-              </span>
-            </div>
-          </label>
-
-          <label className="form-control">
-            <div className="label">
-              <span className="label-text font-medium">อีเมล</span>
-            </div>
-            <input
-              name="email"
-              type="email"
-              required
-              className="input input-bordered"
-              value={form.email}
-              onChange={handleChange}
-            />
-          </label>
-
-          <label className="form-control">
-            <div className="label">
-              <span className="label-text font-medium">รหัสผ่านสำหรับบัญชีใหม่</span>
-            </div>
-            <input
-              name="password"
-              type="password"
-              required
-              minLength={8}
-              className="input input-bordered"
-              value={form.password}
-              onChange={handleChange}
-            />
-            <div className="label">
-              <span className="label-text-alt text-base-content/60">
-                ใช้อย่างน้อย 8 ตัวอักษร
-              </span>
-            </div>
-          </label>
-
-          <label className="form-control">
-            <div className="label">
-              <span className="label-text font-medium">เบอร์โทรศัพท์</span>
-            </div>
-            <input
-              name="phone"
-              className="input input-bordered"
-              value={form.phone}
-              onChange={handleChange}
-            />
-          </label>
+          <Input
+            label="ชื่อ-นามสกุล"
+            name="name"
+            required
+            value={form.name}
+            onChange={handleChange}
+          />
+          <Input
+            label="ชื่อผู้ใช้"
+            name="username"
+            required
+            value={form.username}
+            onChange={handleChange}
+            placeholder="ใช้ตัวอักษรเล็ก ไม่มีเว้นวรรค"
+          />
+          <Input
+            label="อีเมล"
+            name="email"
+            type="email"
+            required
+            value={form.email}
+            onChange={handleChange}
+          />
+          <Input
+            label="รหัสผ่าน"
+            name="password"
+            type="password"
+            required
+            minLength={8}
+            value={form.password}
+            onChange={handleChange}
+            placeholder="อย่างน้อย 8 ตัวอักษร"
+          />
+          <Input
+            label="เบอร์โทรศัพท์"
+            name="phone"
+            value={form.phone}
+            onChange={handleChange}
+          />
 
           {form.role === "teacher" && (
-            <label className="form-control">
-              <div className="label">
-                <span className="label-text font-medium">ภาควิชา / สังกัด</span>
-              </div>
-              <input
-                name="department"
-                className="input input-bordered"
-                value={form.department}
-                onChange={handleChange}
-              />
-            </label>
+            <Input
+              label="แผนก / สาขาวิชา"
+              name="department"
+              value={form.department}
+              onChange={handleChange}
+            />
           )}
 
-          {form.role === "supervisor" && (
+          {form.role === "workplace" && (
             <>
-              <label className="form-control">
-                <div className="label">
-                  <span className="label-text font-medium">ชื่อสถานประกอบการ</span>
-                </div>
-                <input
-                  name="companyName"
-                  required
-                  className="input input-bordered"
-                  value={form.companyName}
-                  onChange={handleChange}
-                />
-              </label>
-
-              <label className="form-control">
-                <div className="label">
-                  <span className="label-text font-medium">ตำแหน่งในองค์กร</span>
-                </div>
-                <input
-                  name="position"
-                  className="input input-bordered"
-                  value={form.position}
-                  onChange={handleChange}
-                />
-              </label>
+              <Input
+                label="ชื่อสถานประกอบการ"
+                name="companyName"
+                required
+                value={form.companyName}
+                onChange={handleChange}
+              />
+              <Input
+                label="ชื่อผู้ติดต่อหลัก"
+                name="contactName"
+                required
+                value={form.contactName}
+                onChange={handleChange}
+              />
+              <Input
+                label="อีเมลผู้ติดต่อ"
+                name="contactEmail"
+                type="email"
+                value={form.contactEmail}
+                onChange={handleChange}
+                placeholder="เว้นว่างได้หากใช้เหมือนกับอีเมลบัญชี"
+              />
+              <Input
+                label="เบอร์โทรผู้ติดต่อ"
+                name="contactPhone"
+                value={form.contactPhone}
+                onChange={handleChange}
+              />
+              <Input
+                label="ตำแหน่งงาน"
+                name="contactPosition"
+                value={form.contactPosition}
+                onChange={handleChange}
+              />
+              <Input
+                label="สาขา / หน่วยงาน"
+                name="branchName"
+                value={form.branchName}
+                onChange={handleChange}
+              />
+              <Textarea
+                label="ที่อยู่"
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+              />
+              <Textarea
+                label="บันทึกเพิ่มเติม"
+                name="notes"
+                value={form.notes}
+                onChange={handleChange}
+              />
             </>
           )}
         </div>
@@ -257,22 +243,40 @@ export default function AdminUserForm() {
             type="button"
             className="btn btn-ghost"
             onClick={() => {
-              setForm(INITIAL_FORM);
+              setForm({ ...INITIAL_FORM, role: form.role });
               setFeedback(null);
             }}
             disabled={isSubmitting}
           >
             ล้างข้อมูล
           </button>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "กำลังบันทึก..." : "สร้างบัญชี"}
+          <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+            {isSubmitting ? 'กำลังสร้าง...' : 'สร้างบัญชีผู้ใช้'}
           </button>
         </div>
       </div>
     </form>
+  );
+}
+
+function Input({ label, className = '', ...props }) {
+  return (
+    <label className="form-control">
+      <div className="label">
+        <span className="label-text font-medium">{label}</span>
+      </div>
+      <input className={`input input-bordered ${className}`} {...props} />
+    </label>
+  );
+}
+
+function Textarea({ label, className = '', ...props }) {
+  return (
+    <label className="form-control">
+      <div className="label">
+        <span className="label-text font-medium">{label}</span>
+      </div>
+      <textarea className={`textarea textarea-bordered ${className}`} rows={3} {...props} />
+    </label>
   );
 }

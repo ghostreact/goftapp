@@ -32,7 +32,7 @@ export default async function RootLayout({ children }) {
         <main className="flex-1">{children}</main>
         <footer className="bg-base-100 border-t border-base-200">
           <div className="mx-auto flex max-w-7xl flex-col gap-2 px-6 py-6 text-sm text-base-content/70 lg:px-10">
-            <span>© {new Date().getFullYear()} GOFT Internship Platform</span>
+            <span>© {new Date().getFullYear()} แพลตฟอร์มฝึกงาน GOFT</span>
             <span>
               รองรับการจัดการข้อมูลนักศึกษาฝึกงาน ครูนิเทศ และสถานประกอบการ
             </span>

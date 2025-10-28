@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
+﻿import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongo";
 import User from "@/models/User";
 import Teacher from "@/models/Teacher";
-import Supervisor from "@/models/Supervisor";
+import Workplace from "@/models/Workplace";
 import {
   authorizeRole,
   getUserFromRequest,
@@ -11,22 +11,42 @@ import {
   serializeUser,
 } from "@/lib/auth";
 
-function validateAdminPayload(body) {
+const ADMIN_ALLOWED_ROLES = ["teacher", "workplace"];
+
+function validateAdminPayload(body = {}) {
   const errors = [];
-  if (!body.role || !["teacher", "supervisor"].includes(body.role)) {
+
+  if (!body.role || !ADMIN_ALLOWED_ROLES.includes(body.role)) {
     errors.push("role");
   }
-  if (!body.name) {
+
+  if (!body.name?.trim()) {
     errors.push("name");
   }
-  if (!body.username) {
+
+  if (!body.username?.trim()) {
     errors.push("username");
   }
-  if (!body.email) {
+
+  if (!body.email?.trim()) {
     errors.push("email");
   }
+
   if (!body.password || body.password.length < 8) {
     errors.push("password");
+  }
+
+  if (body.role === "teacher" && !body.department?.trim()) {
+    errors.push("department");
+  }
+
+  if (body.role === "workplace") {
+    if (!body.companyName?.trim()) {
+      errors.push("companyName");
+    }
+    if (!body.contactName?.trim()) {
+      errors.push("contactName");
+    }
   }
 
   return errors;
@@ -43,8 +63,8 @@ export async function POST(request) {
     if (errors.length) {
       return NextResponse.json(
         {
-          error: "ข้อมูลไม่ครบถ้วน",
-          details: `กรุณากรอก: ${errors.join(", ")}`,
+          error: "ข้อมูลสำหรับสร้างบัญชีไม่ครบถ้วนหรือไม่ถูกต้อง",
+          details: `ฟิลด์ที่ขาดหรือไม่ถูกต้อง: ${errors.join(", ")}`,
         },
         { status: 400 }
       );
@@ -55,12 +75,16 @@ export async function POST(request) {
 
     await connectDB();
 
-    const existingUser = await User.findOne({
+    const duplicate = await User.findOne({
       $or: [{ email }, { username }],
     });
-    if (existingUser) {
+
+    if (duplicate) {
       return NextResponse.json(
-        { error: "อีเมลหรือชื่อผู้ใช้นี้ถูกใช้งานแล้ว" },
+        {
+          error:
+            "มีผู้ใช้งานที่ใช้อีเมลหรือชื่อผู้ใช้นี้อยู่แล้ว กรุณาเลือกข้อมูลอื่น",
+        },
         { status: 409 }
       );
     }
@@ -101,29 +125,33 @@ export async function POST(request) {
           { session }
         );
         profileDoc = teacher;
-      } else if (body.role === "supervisor") {
-        const [supervisor] = await Supervisor.create(
+      } else if (body.role === "workplace") {
+        const [workplace] = await Workplace.create(
           [
             {
               user: user._id,
-              name: body.name,
-              email,
-              phone: body.phone || "",
-              position: body.position || "",
-              companyName: body.companyName || "",
+              companyName: body.companyName.trim(),
+              branchName: body.branchName || "",
+              contactName: body.contactName?.trim() || body.name,
+              contactEmail: email,
+              contactPhone: body.phone || "",
+              contactPosition: body.contactPosition || body.position || "",
+              address: body.address || "",
+              status: body.workplaceStatus || "pending",
+              notes: body.notes || "",
             },
           ],
           { session }
         );
-        profileDoc = supervisor;
+        profileDoc = workplace;
       }
 
       user.profile = profileDoc?._id || null;
       user.profileModel =
         body.role === "teacher"
           ? "Teacher"
-          : body.role === "supervisor"
-            ? "Supervisor"
+          : body.role === "workplace"
+            ? "Workplace"
             : null;
       await user.save({ session });
 
@@ -131,7 +159,7 @@ export async function POST(request) {
 
       return NextResponse.json(
         {
-          message: "สร้างผู้ใช้งานใหม่สำเร็จ",
+          message: "สร้างบัญชีผู้ใช้เรียบร้อยแล้ว",
           user: serializeUser(user),
         },
         { status: 201 }
@@ -156,8 +184,9 @@ export async function POST(request) {
     const status = error.message === "unauthorized" ? 401 : 500;
     const message =
       error.message === "unauthorized"
-        ? "คุณไม่มีสิทธิ์เข้าถึง"
-        : "ไม่สามารถสร้างผู้ใช้งานได้";
+        ? "คุณไม่มีสิทธิ์สร้างบัญชีผู้ใช้"
+        : "เกิดข้อผิดพลาดขณะสร้างบัญชีผู้ใช้ กรุณาลองใหม่";
+
     return NextResponse.json(
       { error: message, details: error.message },
       { status }

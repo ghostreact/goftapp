@@ -12,13 +12,11 @@ import {
 
 export async function POST(request) {
   try {
-    const refreshToken = request.cookies
-      ?.get(REFRESH_TOKEN_COOKIE)
-      ?.value;
+    const refreshToken = request.cookies?.get(REFRESH_TOKEN_COOKIE)?.value;
 
     if (!refreshToken) {
       return NextResponse.json(
-        { error: "ไม่มีข้อมูลรีเฟรชโทเค็น" },
+        { error: "ไม่พบรีเฟรชโทเค็น" },
         { status: 401 }
       );
     }
@@ -33,7 +31,7 @@ export async function POST(request) {
 
     if (!user || !user.active) {
       return NextResponse.json(
-        { error: "ไม่พบผู้ใช้งานหรือถูกปิดการใช้งาน" },
+        { error: "ไม่พบผู้ใช้หรือบัญชีถูกปิดใช้งาน" },
         { status: 401 }
       );
     }
@@ -42,7 +40,7 @@ export async function POST(request) {
     const newRefreshToken = signRefreshToken(user);
 
     const response = NextResponse.json({
-      message: "รีเฟรชโทเค็นเรียบร้อย",
+      message: "รีเฟรชโทเค็นสำเร็จ",
       user: serializeUser(user),
     });
 
@@ -55,7 +53,10 @@ export async function POST(request) {
   } catch (error) {
     console.error("POST /api/auth/refresh error:", error);
     return NextResponse.json(
-      { error: "ไม่สามารถรีเฟรชโทเค็นได้", details: error.message },
+      {
+        error: "เกิดข้อผิดพลาดขณะรีเฟรชโทเค็น",
+        details: error.message,
+      },
       { status: 401 }
     );
   }

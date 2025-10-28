@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongo";
 import User from "@/models/User";
 import Student from "@/models/Student";
 import "@/models/Teacher";
-import "@/models/Supervisor";
+import "@/models/Workplace";
 import {
   comparePassword,
   serializeUser,
@@ -20,7 +20,7 @@ export async function POST(request) {
 
     if (!rawUsername || !password) {
       return NextResponse.json(
-        { error: "กรุณากรอกชื่อผู้ใช้/รหัสนักศึกษาและรหัสผ่าน" },
+        { error: "ต้องระบุชื่อผู้ใช้และรหัสผ่าน" },
         { status: 400 }
       );
     }
@@ -42,7 +42,7 @@ export async function POST(request) {
 
     if (!user || !user.active) {
       return NextResponse.json(
-        { error: "ไม่พบผู้ใช้งานหรือบัญชีถูกปิดการใช้งาน" },
+        { error: "ไม่พบบัญชีผู้ใช้หรือบัญชีถูกปิดใช้งาน" },
         { status: 401 }
       );
     }
@@ -72,7 +72,7 @@ export async function POST(request) {
     console.error("POST /api/auth/login error:", error);
     return NextResponse.json(
       {
-        error: "ไม่สามารถเข้าสู่ระบบได้",
+        error: "เกิดข้อผิดพลาดขณะเข้าสู่ระบบ",
         details: error.message,
       },
       { status: 500 }

@@ -1,17 +1,17 @@
-'use client';
+﻿'use client';
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 const roleLinks = {
   admin: [
-    { href: "/admin", label: "ผู้ดูแลระบบ" },
-    { href: "/admin/internships", label: "การฝึกงาน" },
+    { href: '/admin', label: 'แดชบอร์ดผู้ดูแล' },
+    { href: '/admin/internships', label: 'รายการฝึกงาน' },
   ],
-  teacher: [{ href: "/teacher", label: "แดชบอร์ดครูนิเทศ" }],
-  supervisor: [{ href: "/supervisor", label: "แดชบอร์ดผู้ควบคุม" }],
-  student: [{ href: "/student", label: "แดชบอร์ดนักศึกษา" }],
+  teacher: [{ href: '/teacher', label: 'แดชบอร์ดครู' }],
+  workplace: [{ href: '/workplace', label: 'แดชบอร์ดสถานประกอบการ' }],
+  student: [{ href: '/student', label: 'แดชบอร์ดนักศึกษา' }],
 };
 
 export default function MainNav({ user }) {
@@ -25,10 +25,10 @@ export default function MainNav({ user }) {
     if (isSubmitting) return;
     setIsSubmitting(true);
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await fetch('/api/auth/logout', { method: 'POST' });
     } finally {
       setIsSubmitting(false);
-      router.push("/login");
+      router.push('/login');
       router.refresh();
     }
   };
@@ -38,7 +38,7 @@ export default function MainNav({ user }) {
       <nav className="navbar mx-auto max-w-7xl px-6 lg:px-10">
         <div className="flex-1 items-center gap-3">
           <Link href="/" className="text-lg font-bold text-primary">
-            GOFT Internship
+            GOFT ระบบฝึกงาน
           </Link>
           <div className="hidden items-center gap-2 sm:flex">
             {links.map((link) => (
@@ -47,8 +47,8 @@ export default function MainNav({ user }) {
                 href={link.href}
                 className={`btn btn-ghost btn-sm ${
                   pathname.startsWith(link.href)
-                    ? "btn-active text-primary"
-                    : "text-base-content/70"
+                    ? 'btn-active text-primary'
+                    : 'text-base-content/70'
                 }`}
               >
                 {link.label}
@@ -71,7 +71,7 @@ export default function MainNav({ user }) {
                 onClick={handleLogout}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "กำลังออก..." : "ออกจากระบบ"}
+                {isSubmitting ? 'กำลังออกจากระบบ...' : 'ออกจากระบบ'}
               </button>
             </>
           ) : (
@@ -87,15 +87,15 @@ export default function MainNav({ user }) {
 
 function roleLabel(role) {
   switch (role) {
-    case "admin":
-      return "ADMIN";
-    case "teacher":
-      return "TEACHER";
-    case "supervisor":
-      return "SUPERVISOR";
-    case "student":
-      return "STUDENT";
+    case 'admin':
+      return 'ผู้ดูแลระบบ';
+    case 'teacher':
+      return 'ครูที่ปรึกษา';
+    case 'workplace':
+      return 'สถานประกอบการ';
+    case 'student':
+      return 'นักศึกษา';
     default:
-      return role?.toUpperCase() || "";
+      return role?.toUpperCase() || '';
   }
 }

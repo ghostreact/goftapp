@@ -1,4 +1,4 @@
-export default function Home() {
+﻿export default function Home() {
   return (
     <div className="page-wrapper py-12">
       <div className="mx-auto flex max-w-6xl flex-col gap-16 px-6 lg:px-10">
@@ -15,30 +15,40 @@ function HeroSection() {
     <section className="grid gap-8 rounded-3xl border border-base-200 bg-base-100/80 p-10 shadow-lg lg:grid-cols-[1.1fr_0.9fr]">
       <div className="flex flex-col gap-6">
         <span className="badge badge-primary badge-outline w-fit">
-          ระบบจัดการฝึกงานครบวงจร
+          จัดการการฝึกงานให้ง่ายในที่เดียว
         </span>
         <h1 className="text-4xl font-bold leading-tight text-base-content lg:text-5xl">
-          จัดการการฝึกงานของนักศึกษาได้ในที่เดียว ตั้งแต่ลงทะเบียนจนถึง
-          ประเมินผล
+          ประสานงานนักศึกษา ครูนิเทศ และสถานประกอบการอย่างเป็นระบบ
         </h1>
         <p className="text-lg leading-7 text-base-content/70">
-          รองรับการใช้งานของผู้ดูแลระบบ ครูนิเทศ สถานประกอบการ และนักศึกษา
-          ครอบคลุมการลงทะเบียน บันทึกผลการประเมิน และติดตามความก้าวหน้า
+          GOFT ช่วยให้ทุกฝ่ายติดตามการฝึกงานได้ครบถ้วน ตั้งแต่การอนุมัติสถานประกอบการ บันทึกประจำวัน รายงานประจำสัปดาห์ จนถึงการประเมินผลสุดท้าย
         </p>
         <div className="flex flex-wrap gap-3">
           <a className="btn btn-primary" href="/login">
-            เริ่มต้นใช้งาน
+            เข้าสู่ระบบ
           </a>
           <a className="btn btn-outline" href="/admin">
-            สำรวจแดชบอร์ด
+            ดูแดชบอร์ดตัวอย่าง
           </a>
         </div>
       </div>
       <div className="rounded-2xl bg-gradient-to-bl from-primary/15 via-secondary/10 to-accent/20 p-8">
         <dl className="grid gap-6 text-base-content">
-          <StatsItem label="บทบาทผู้ใช้งาน" value="4 กลุ่ม" detail="Admin, Teacher, Supervisor, Student" />
-          <StatsItem label="บันทึกผลประเมิน" value="Real-time" detail="ติดตามสถานะและคะแนนเฉลี่ย" />
-          <StatsItem label="จัดเก็บข้อมูล" value="MongoDB" detail="เชื่อมต่อผ่าน Mongoose" />
+          <StatsItem
+            label="บทบาทที่รองรับ"
+            value="4 บทบาท"
+            detail="ผู้ดูแล, ครูนิเทศ, สถานประกอบการ, นักศึกษา"
+          />
+          <StatsItem
+            label="อัปเดตแบบเรียลไทม์"
+            value="เรียลไทม์"
+            detail="บันทึกประจำวัน รายงานสัปดาห์ และแบบประเมินครบถ้วน"
+          />
+          <StatsItem
+            label="จัดเก็บข้อมูลปลอดภัย"
+            value="MongoDB"
+            detail="ทำงานร่วมกับ Mongoose และระบบยืนยันตัวตนสมัยใหม่"
+          />
         </dl>
       </div>
     </section>
@@ -51,9 +61,7 @@ function StatsItem({ label, value, detail }) {
       <dt className="text-sm uppercase tracking-wide text-base-content/60">
         {label}
       </dt>
-      <dd className="mt-1 text-2xl font-semibold text-base-content">
-        {value}
-      </dd>
+      <dd className="mt-1 text-2xl font-semibold text-base-content">{value}</dd>
       <p className="mt-1 text-sm text-base-content/70">{detail}</p>
     </div>
   );
@@ -62,19 +70,24 @@ function StatsItem({ label, value, detail }) {
 function FeatureSection() {
   const features = [
     {
-      title: "จัดการข้อมูลครบทั้ง 3 ฝ่าย",
+      title: 'ติดตามการฝึกงานครบวงจร',
       description:
-        "เก็บข้อมูลนักศึกษา ครูนิเทศ และสถานประกอบการ พร้อมความสัมพันธ์ต่อการฝึกงาน",
+        'ตรวจสอบความก้าวหน้ารายวัน รายสัปดาห์ และผลสรุปปลายทางได้อย่างชัดเจน',
     },
     {
-      title: "บันทึกผลประเมินหลายมุมมอง",
+      title: 'ทำงานร่วมกันได้ทุกบทบาท',
       description:
-        "รองรับคะแนนจากครูนิเทศและผู้ควบคุม พร้อมคำนวณค่าเฉลี่ยอัตโนมัติ",
+        'ครูนิเทศและสถานประกอบการสามารถบันทึกข้อมูล แสดงความคิดเห็น และประเมินผลในระบบเดียว',
     },
     {
-      title: "ปลอดภัยด้วยการแยกสิทธิ์",
+      title: 'ดูภาพรวมได้ทันที',
       description:
-        "ระบบเข้าสู่ระบบด้วยโทเค็นและสิทธิ์ของผู้ใช้แต่ละบทบาทอย่างชัดเจน",
+        'แผงสรุปช่วยให้ผู้ประสานงานเห็นว่าการฝึกงานใดต้องการการติดตามเป็นพิเศษ',
+    },
+    {
+      title: 'ตรวจสอบย้อนหลังได้',
+      description:
+        'ทุกการส่งมีเวลาและผู้ดำเนินการกำกับ ช่วยให้ติดตามการเปลี่ยนแปลงและการอนุมัติได้ง่าย',
     },
   ];
 
@@ -82,24 +95,24 @@ function FeatureSection() {
     <section className="grid gap-6 rounded-3xl border border-base-200 bg-base-100/80 p-10">
       <header className="flex flex-col gap-3">
         <h2 className="text-3xl font-semibold text-base-content">
-          ฟีเจอร์เด่นที่ช่วยให้การฝึกงานเป็นเรื่องง่าย
+          เหตุผลที่สถานศึกษาวางใจ GOFT
         </h2>
         <p className="text-base text-base-content/70">
-          สร้าง สรุป และติดตามผล ด้วยเครื่องมือที่ออกแบบมาเพื่อการจัดการนักศึกษาฝึกงานโดยเฉพาะ
+          ระบบออกแบบมาสำหรับการฝึกงานสายอาชีพที่ต้องการความครบถ้วนและติดตามได้จริง
         </p>
       </header>
-      <div className="grid gap-6 md:grid-cols-3">
-        {features.map((item) => (
+      <div className="grid gap-6 md:grid-cols-2">
+        {features.map((feature) => (
           <div
-            key={item.title}
+            key={feature.title}
             className="card border border-base-200 bg-base-100 shadow-sm"
           >
             <div className="card-body">
-              <h3 className="card-title text-xl font-semibold text-base-content">
-                {item.title}
+              <h3 className="card-title text-2xl font-semibold text-base-content">
+                {feature.title}
               </h3>
               <p className="text-base leading-6 text-base-content/70">
-                {item.description}
+                {feature.description}
               </p>
             </div>
           </div>
@@ -112,32 +125,32 @@ function FeatureSection() {
 function RoleSection() {
   const roles = [
     {
-      name: "ผู้ดูแลระบบ",
+      name: 'ผู้ดูแลระบบ',
       description:
-        "สร้างบัญชีครูนิเทศและผู้ควบคุม พร้อมตรวจสอบความคืบหน้าการฝึกงานทั้งหมด",
-      link: "/admin",
-      cta: "จัดการผู้ใช้",
+        'สร้างบัญชีผู้ใช้ จัดการสถานที่ฝึกงาน และตรวจสอบกิจกรรมทั้งหมด',
+      link: '/admin',
+      cta: 'เข้าสู่ระบบผู้ดูแล',
     },
     {
-      name: "ครูนิเทศ",
+      name: 'ครูนิเทศ',
       description:
-        "สร้างบัญชีนักศึกษา บันทึกการเข้าพบ และติดตามการประเมินจากผู้ควบคุม",
-      link: "/teacher",
-      cta: "จัดการนักศึกษา",
+        'ลงทะเบียนสถานประกอบการ ตรวจรายงานรายสัปดาห์ และสรุปผลการฝึกงาน',
+      link: '/teacher',
+      cta: 'แดชบอร์ดครูนิเทศ',
     },
     {
-      name: "สถานประกอบการ",
+      name: 'สถานประกอบการ',
       description:
-        "บันทึกผลการประเมินนักศึกษาและแจ้งสถานะความก้าวหน้าได้แบบเรียลไทม์",
-      link: "/supervisor",
-      cta: "เข้าสู่แดชบอร์ด",
+        'บันทึกการเข้าฝึก ส่งสรุปรายสัปดาห์ และยืนยันผลการประเมินนักศึกษา',
+      link: '/workplace',
+      cta: 'แดชบอร์ดสถานประกอบการ',
     },
     {
-      name: "นักศึกษา",
+      name: 'นักศึกษา',
       description:
-        "ตรวจสอบสถานะการฝึกงาน คะแนนประเมิน และคำแนะนำเพื่อพัฒนาตนเอง",
-      link: "/student",
-      cta: "ดูผลประเมิน",
+        'ติดตามชั่วโมงฝึกงาน ตรวจสอบข้อเสนอแนะ และเตรียมตัวสำหรับการประเมิน',
+      link: '/student',
+      cta: 'แดชบอร์ดนักศึกษา',
     },
   ];
 
@@ -145,10 +158,10 @@ function RoleSection() {
     <section className="grid gap-6 rounded-3xl border border-base-200 bg-base-100/80 p-10">
       <header className="flex flex-col gap-3">
         <h2 className="text-3xl font-semibold text-base-content">
-          ระบบที่รองรับทุกบทบาทในการฝึกงาน
+          ครบทุกบทบาทในการฝึกงาน
         </h2>
         <p className="text-base text-base-content/70">
-          กำหนดสิทธิ์อย่างชัดเจนให้แต่ละบทบาททำงานได้สะดวก และรักษาความปลอดภัยของข้อมูล
+          ประสบการณ์การใช้งานออกแบบให้เข้าใจง่ายสำหรับแต่ละบทบาท ลดการทำงานซ้ำซ้อน
         </p>
       </header>
       <div className="grid gap-6 md:grid-cols-2">
@@ -176,3 +189,4 @@ function RoleSection() {
     </section>
   );
 }
+

@@ -9,7 +9,7 @@ const EvaluationSchema = new Schema(
     },
     evaluatorRole: {
       type: String,
-      enum: ["teacher", "supervisor"],
+      enum: ["teacher", "workplace"],
       required: true,
     },
     evaluatorName: {

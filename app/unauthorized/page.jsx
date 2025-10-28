@@ -3,7 +3,7 @@ export default function UnauthorizedPage() {
     <div className="flex min-h-[calc(100vh-200px)] items-center justify-center bg-base-200 px-6 py-16">
       <div className="card border border-error/40 bg-base-100 shadow-lg">
         <div className="card-body items-center space-y-4 text-center">
-          <span className="badge badge-error badge-outline">ACCESS DENIED</span>
+          <span className="badge badge-error badge-outline">ไม่มีสิทธิ์เข้าถึง</span>
           <h1 className="text-3xl font-semibold text-error">
             ไม่มีสิทธิ์เข้าถึงหน้านี้
           </h1>

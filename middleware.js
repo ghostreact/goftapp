@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
 const ACCESS_TOKEN_COOKIE = "accessToken";
 
 const routeRoles = [
   { prefix: "/admin", roles: ["admin"] },
   { prefix: "/teacher", roles: ["teacher"] },
-  { prefix: "/supervisor", roles: ["supervisor"] },
+  { prefix: "/workplace", roles: ["workplace"] },
   { prefix: "/student", roles: ["student"] },
 ];
 
@@ -46,7 +46,7 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/teacher/:path*", "/supervisor/:path*", "/student/:path*", "/login"],
+  matcher: ["/admin/:path*", "/teacher/:path*", "/workplace/:path*", "/student/:path*", "/login"],
 };
 
 function decodeJwt(token) {
@@ -60,3 +60,4 @@ function decodeJwt(token) {
     return null;
   }
 }
+

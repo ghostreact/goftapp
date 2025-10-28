@@ -1,4 +1,4 @@
-'use client';
+﻿"use client";
 
 import dayjs from "dayjs";
 
@@ -7,21 +7,32 @@ export default function InternshipSnapshot({ data }) {
     return (
       <div className="card bg-base-100 border border-dashed border-base-200 shadow-sm">
         <div className="card-body items-center justify-center text-center text-base-content/60">
-          <p>ยังไม่มีข้อมูลการฝึกงานให้แสดงผล</p>
+          <p>ยังไม่ได้เลือกรายการฝึกงาน</p>
         </div>
       </div>
     );
   }
+
+  const logMetrics = data.metrics?.logs || { totalLogs: 0, lastLogDate: null };
+  const weeklyMetrics = data.metrics?.weeklyReports || {
+    totalReports: 0,
+    approved: 0,
+    needsRevision: 0,
+    pending: 0,
+    lastSubmittedAt: null,
+  };
 
   return (
     <div className="card bg-base-100 border border-base-200 shadow-sm">
       <div className="card-body gap-6">
         <header className="space-y-1">
           <h2 className="card-title text-2xl font-semibold">
-            {data.student?.name || "ไม่พบนักศึกษา"}
+            {data.student?.fullName || data.student?.name || 'ไม่พบนักศึกษา'}
           </h2>
           <p className="text-base-content/70">
-            {formatStudentProgram(data.student) || data.student?.email}
+            {formatStudentProgram(data.student) ||
+              data.student?.email ||
+              'ไม่มีข้อมูลหลักสูตร'}
           </p>
         </header>
 
@@ -31,44 +42,42 @@ export default function InternshipSnapshot({ data }) {
             value={
               <>
                 <div className="font-semibold">
-                  {data.supervisor?.companyName || "-"}
+                  {data.workplace?.companyName || 'ไม่ระบุ'}
                 </div>
                 <div className="text-base-content/60">
-                  {data.supervisor?.name || "-"}
+                  {data.workplace?.contactName || 'ไม่มีข้อมูลผู้ติดต่อ'}
                 </div>
               </>
             }
           />
           <Row
-            label="ช่วงการฝึกงาน"
-            value={`${formatDate(data.startDate)} - ${formatDate(
-              data.endDate
-            )}`}
+            label="ช่วงเวลาฝึกงาน"
+            value={`${formatDate(data.startDate)} - ${formatDate(data.endDate)}`}
           />
           <Row
             label="ชั่วโมงต่อสัปดาห์"
-            value={
-              data.weeklyHours ? `${data.weeklyHours} ชั่วโมง` : "-"
-            }
+            value={data.weeklyHours ? `${data.weeklyHours} ชั่วโมง/สัปดาห์` : 'ไม่ระบุ'}
           />
           <Row
             label="ครูนิเทศ"
             value={
               <>
-                <div className="font-semibold">{data.teacher?.name || "-"}</div>
+                <div className="font-semibold">
+                  {data.teacher?.name || 'ยังไม่ระบุ'}
+                </div>
                 <div className="text-base-content/60">
-                  {data.teacher?.department || data.teacher?.email || "-"}
+                  {data.teacher?.department || data.teacher?.email || ''}
                 </div>
               </>
             }
           />
+          <Row label="บันทึกประจำวัน" value={formatLogSummary(logMetrics)} />
+          <Row label="รายงานประจำสัปดาห์" value={formatWeeklySummary(weeklyMetrics)} />
         </dl>
 
-        {Boolean(data.focusAreas?.length) && (
+        {Array.isArray(data.focusAreas) && data.focusAreas.length > 0 && (
           <section>
-            <h3 className="text-base font-semibold text-base-content">
-              ทักษะ/หัวข้อที่ต้องการเน้น
-            </h3>
+            <h3 className="text-base font-semibold text-base-content">หัวข้อการฝึก</h3>
             <div className="mt-2 flex flex-wrap gap-2">
               {data.focusAreas.map((item) => (
                 <span key={item} className="badge badge-outline">
@@ -81,9 +90,7 @@ export default function InternshipSnapshot({ data }) {
 
         {data.objectives && (
           <section>
-            <h3 className="text-base font-semibold text-base-content">
-              วัตถุประสงค์
-            </h3>
+            <h3 className="text-base font-semibold text-base-content">วัตถุประสงค์</h3>
             <p className="mt-2 whitespace-pre-line text-sm leading-6 text-base-content/80">
               {data.objectives}
             </p>
@@ -92,9 +99,7 @@ export default function InternshipSnapshot({ data }) {
 
         {data.responsibilities && (
           <section>
-            <h3 className="text-base font-semibold text-base-content">
-              หน้าที่และความรับผิดชอบ
-            </h3>
+            <h3 className="text-base font-semibold text-base-content">หน้าที่ความรับผิดชอบ</h3>
             <p className="mt-2 whitespace-pre-line text-sm leading-6 text-base-content/80">
               {data.responsibilities}
             </p>
@@ -105,7 +110,7 @@ export default function InternshipSnapshot({ data }) {
           <EvaluationOverview summary={data.evaluationSummary} />
         ) : (
           <div className="rounded-box border border-dashed border-primary/50 bg-primary/5 p-4 text-sm text-primary">
-            ยังไม่มีการประเมินจากครูนิเทศหรือผู้ควบคุม
+            ยังไม่มีการส่งแบบประเมิน
           </div>
         )}
       </div>
@@ -114,14 +119,12 @@ export default function InternshipSnapshot({ data }) {
 }
 
 function formatStudentProgram(student) {
-  if (!student) return "";
+  if (!student) return '';
   const parts = [];
-  if (student.level && student.year) {
-    parts.push(`${student.level}${student.year}`);
-  } else if (student.level) {
-    parts.push(student.level);
-  } else if (student.year) {
-    parts.push(`ปี ${student.year}`);
+  if (student.programType && student.yearLevel) {
+    parts.push(
+      `${student.programType.replace(/_/g, ' ')} ชั้นปีที่ ${student.yearLevel}`
+    );
   }
   if (student.department) {
     parts.push(student.department);
@@ -129,7 +132,7 @@ function formatStudentProgram(student) {
   if (student.classroom) {
     parts.push(`ห้อง ${student.classroom}`);
   }
-  return parts.join(" • ");
+  return parts.join(' • ');
 }
 
 function Row({ label, value }) {
@@ -158,26 +161,26 @@ function EvaluationOverview({ summary }) {
           สรุปผลการประเมิน
         </h3>
         <div className="badge badge-primary badge-lg font-semibold">
-          คะแนนเฉลี่ย {averageScore ?? "-"}
+          ค่าเฉลี่ย {averageScore ?? '-'} / 5
         </div>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-        <Field label="ทักษะ" value={summary.averageTechnical ?? "-"} />
+        <Field label="ทักษะทางเทคนิค" value={summary.averageTechnical ?? '-'} />
         <Field
           label="ความเป็นมืออาชีพ"
-          value={summary.averageProfessionalism ?? "-"}
+          value={summary.averageProfessionalism ?? '-'}
         />
         <Field
           label="การสื่อสาร"
-          value={summary.averageCommunication ?? "-"}
+          value={summary.averageCommunication ?? '-'}
         />
         <Field
           label="การแก้ปัญหา"
-          value={summary.averageProblemSolving ?? "-"}
+          value={summary.averageProblemSolving ?? '-'}
         />
       </div>
       <div className="mt-4 text-xs text-base-content/60">
-        อัปเดตล่าสุด {summary.lastSubmittedAt ? formatDate(summary.lastSubmittedAt) : "-"}
+        ส่งล่าสุด {summary.lastSubmittedAt ? formatDate(summary.lastSubmittedAt) : '—'}
       </div>
     </section>
   );
@@ -192,9 +195,21 @@ function Field({ label, value }) {
   );
 }
 
+function formatLogSummary(metrics) {
+  let text = `${metrics.totalLogs} รายการ`;
+  if (metrics.lastLogDate) {
+    text += ` • ล่าสุด ${formatDate(metrics.lastLogDate)}`;
+  }
+  return text;
+}
+
+function formatWeeklySummary(metrics) {
+  return `${metrics.totalReports} ฉบับ • ผ่าน ${metrics.approved} • ขอปรับปรุง ${metrics.needsRevision}`;
+}
+
 function formatDate(value) {
-  if (!value) return "-";
-  return dayjs(value).format("DD MMM YYYY");
+  if (!value) return '—';
+  return dayjs(value).format('DD MMM YYYY');
 }
 
 function average(values = []) {

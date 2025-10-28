@@ -27,7 +27,7 @@ const UserSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ["admin", "teacher", "student", "supervisor"],
+      enum: ["admin", "teacher", "student", "workplace"],
       required: true,
     },
     profile: {
@@ -37,7 +37,7 @@ const UserSchema = new Schema(
     },
     profileModel: {
       type: String,
-      enum: ["Admin", "Teacher", "Student", "Supervisor"],
+      enum: ["Admin", "Teacher", "Student", "Workplace"],
       default: null,
     },
     active: {

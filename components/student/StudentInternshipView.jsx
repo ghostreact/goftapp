@@ -1,4 +1,4 @@
-'use client';
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import InternshipSnapshot from "@/components/dashboard/InternshipSnapshot";
@@ -18,7 +18,7 @@ export default function StudentInternshipView() {
         });
         const result = await response.json();
         if (!response.ok) {
-          throw new Error(result.error || "ไม่สามารถโหลดข้อมูลได้");
+          throw new Error(result.error || "ไม่สามารถโหลดข้อมูลการฝึกงานได้");
         }
         if (isMounted) {
           setInternship(result.data?.[0] || null);
@@ -26,7 +26,7 @@ export default function StudentInternshipView() {
         }
       } catch (err) {
         if (isMounted) {
-          setError(err.message || "เกิดข้อผิดพลาด");
+          setError(err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล");
         }
       } finally {
         if (isMounted) {

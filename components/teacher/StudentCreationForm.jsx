@@ -1,21 +1,30 @@
-'use client';
+﻿"use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-const LEVEL_OPTIONS = ["ปวช.", "ปวส."];
-const YEAR_BY_LEVEL = {
-  "ปวช.": ["1", "2", "3"],
-  "ปวส.": ["1", "2"],
-};
+const PROGRAM_OPTIONS = [
+  {
+    value: "vocational_certificate",
+    label: "ประกาศนียบัตรวิชาชีพ (ปวช.)",
+    years: ["1", "2", "3"],
+  },
+  {
+    value: "higher_vocational_certificate",
+    label: "ประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.)",
+    years: ["1", "2"],
+  },
+];
 
 const INITIAL_FORM = {
-  name: "",
+  firstName: "",
+  lastName: "",
+  birthDate: "",
   email: "",
-  password: "",
   studentId: "",
+  password: "",
   phone: "",
-  level: LEVEL_OPTIONS[0],
-  year: YEAR_BY_LEVEL["ปวช."][0],
+  programType: PROGRAM_OPTIONS[0].value,
+  yearLevel: PROGRAM_OPTIONS[0].years[0],
   department: "",
   classroom: "",
 };
@@ -25,17 +34,26 @@ export default function StudentCreationForm({ onSuccess }) {
   const [feedback, setFeedback] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const availableYears = useMemo(() => {
+    const option = PROGRAM_OPTIONS.find((item) => item.value === form.programType);
+    return option?.years ?? [];
+  }, [form.programType]);
+
   const handleChange = (event) => {
     const { name, value } = event.target;
-    if (name === "level") {
-      const yearOptions = YEAR_BY_LEVEL[value] || [];
+
+    if (name === "programType") {
+      const option = PROGRAM_OPTIONS.find((item) => item.value === value);
       setForm((prev) => ({
         ...prev,
-        level: value,
-        year: yearOptions.includes(prev.year) ? prev.year : yearOptions[0] ?? "",
+        programType: value,
+        yearLevel: option?.years.includes(prev.yearLevel)
+          ? prev.yearLevel
+          : option?.years[0] ?? "",
       }));
       return;
     }
+
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -53,73 +71,73 @@ export default function StudentCreationForm({ onSuccess }) {
 
       const result = await response.json();
       if (!response.ok) {
-        throw new Error(
-          result.error ||
-            "ไม่สามารถสร้างบัญชีนักศึกษาได้ กรุณาตรวจสอบข้อมูลอีกครั้ง"
-        );
+        throw new Error(result.error || "ไม่สามารถสร้างบัญชีนักศึกษาได้");
       }
 
       setFeedback({
         type: "success",
-        message: result.message || "สร้างบัญชีนักศึกษาเรียบร้อยแล้ว",
+        message: result.message || "สร้างบัญชีนักศึกษาเรียบร้อย",
       });
       setForm(() => ({ ...INITIAL_FORM }));
       onSuccess?.(result.user);
     } catch (error) {
       setFeedback({
         type: "error",
-        message:
-          error.message ||
-          "เกิดข้อผิดพลาดระหว่างสร้างบัญชี กรุณาลองใหม่อีกครั้ง",
+        message: error.message || "เกิดข้อผิดพลาดในการสร้างบัญชีนักศึกษา",
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const yearOptions = YEAR_BY_LEVEL[form.level] || [];
-
   return (
-    <form
-      className="card border border-base-200 bg-base-100 shadow-sm"
-      onSubmit={handleSubmit}
-    >
+    <form className="card border border-base-200 bg-base-100 shadow-sm" onSubmit={handleSubmit}>
       <div className="card-body space-y-6">
         <div className="space-y-2">
           <h2 className="card-title text-2xl font-semibold text-base-content">
-            สร้างบัญชีนักศึกษา
+            ลงทะเบียนนักศึกษาใหม่
           </h2>
           <p className="text-base text-base-content/70">
-            เพิ่มนักศึกษาระดับอาชีวศึกษา พร้อมระบุระดับชั้น แผนก และห้องเรียน
-            เพื่อเชื่อมโยงกับครูนิเทศในระบบ
+            กรุณากรอกข้อมูลพื้นฐานของนักศึกษาและข้อมูลหลักสูตร ระบบจะสร้างบัญชีผู้ใช้ให้อัตโนมัติสำหรับการเข้าสู่ระบบติดตามการฝึกงาน
           </p>
         </div>
 
         {feedback && (
-          <div
-            className={`alert ${
-              feedback.type === "success" ? "alert-success" : "alert-error"
-            }`}
-          >
+          <div className={lert }>
             <span>{feedback.message}</span>
           </div>
         )}
 
         <div className="grid gap-6 md:grid-cols-2">
           <Input
-            label="ชื่อ - นามสกุล"
-            name="name"
+            label="ชื่อ"
+            name="firstName"
             required
-            value={form.name}
+            value={form.firstName}
+            onChange={handleChange}
+          />
+          <Input
+            label="นามสกุล"
+            name="lastName"
+            required
+            value={form.lastName}
+            onChange={handleChange}
+          />
+          <Input
+            label="วันเดือนปีเกิด"
+            name="birthDate"
+            type="date"
+            required
+            value={form.birthDate}
             onChange={handleChange}
           />
           <Input
             label="อีเมล"
             name="email"
             type="email"
-            required
             value={form.email}
             onChange={handleChange}
+            placeholder="student@example.com"
           />
           <Input
             label="รหัสนักศึกษา"
@@ -129,13 +147,14 @@ export default function StudentCreationForm({ onSuccess }) {
             onChange={handleChange}
           />
           <Input
-            label="รหัสผ่านชั่วคราว (อย่างน้อย 8 ตัวอักษร)"
+            label="รหัสผ่านเข้าสู่ระบบ"
             name="password"
             type="password"
             required
             minLength={8}
             value={form.password}
             onChange={handleChange}
+            placeholder="อย่างน้อย 8 ตัวอักษร"
           />
           <Input
             label="เบอร์โทรศัพท์"
@@ -144,40 +163,40 @@ export default function StudentCreationForm({ onSuccess }) {
             onChange={handleChange}
           />
           <Select
-            label="ระดับ"
-            name="level"
+            label="ประเภทหลักสูตร"
+            name="programType"
             required
-            value={form.level}
+            value={form.programType}
             onChange={handleChange}
           >
-            {LEVEL_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
+            {PROGRAM_OPTIONS.map(({ value, label }) => (
+              <option key={value} value={value}>
+                {label}
               </option>
             ))}
           </Select>
           <Select
             label="ชั้นปี"
-            name="year"
+            name="yearLevel"
             required
-            value={form.year}
+            value={form.yearLevel}
             onChange={handleChange}
           >
-            {yearOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
+            {availableYears.map((year) => (
+              <option key={year} value={year}>
+                {year}
               </option>
             ))}
           </Select>
           <Input
-            label="แผนก"
+            label="แผนก / สาขาวิชา"
             name="department"
             required
             value={form.department}
             onChange={handleChange}
           />
           <Input
-            label="ห้อง"
+            label="ห้อง / กลุ่มเรียน"
             name="classroom"
             required
             value={form.classroom}
@@ -197,12 +216,8 @@ export default function StudentCreationForm({ onSuccess }) {
           >
             ล้างข้อมูล
           </button>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "กำลังบันทึก..." : "สร้างบัญชี"}
+          <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+            {isSubmitting ? "กำลังบันทึก..." : "บันทึกข้อมูลนักศึกษา"}
           </button>
         </div>
       </div>
@@ -233,3 +248,4 @@ function Select({ label, className = "", children, ...props }) {
     </label>
   );
 }
+

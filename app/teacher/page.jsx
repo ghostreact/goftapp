@@ -1,20 +1,20 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import AppDashboard from "@/components/dashboard/AppDashboard";
 
 const ACTIONS = [
   {
-    title: "เพิ่มนักศึกษาใหม่",
+    title: "สร้างบัญชีนักศึกษา",
     description:
-      "สร้างบัญชีนักศึกษาระดับอาชีวศึกษา เชื่อมโยงกับครูนิเทศและข้อมูลโปรไฟล์ที่จำเป็น",
+      "เพิ่มนักศึกษาเข้าสู่ระบบ พร้อมสร้างบัญชีผู้ใช้สำหรับเข้าสู่แพลตฟอร์มติดตามการฝึกงาน",
     href: "/teacher/students/new",
-    cta: "สร้างนักศึกษา",
+    cta: "ลงทะเบียนนักศึกษา",
   },
   {
-    title: "ลงทะเบียนการฝึกงาน",
+    title: "ลงทะเบียนสถานที่ฝึกงาน",
     description:
-      "บันทึกข้อมูลการฝึกงานครบทุกมิติ ทั้งนักศึกษา ครูนิเทศ ผู้ควบคุม และรายละเอียดโครงการ",
+      "จับคู่นักศึกษากับสถานประกอบการและครูนิเทศ พร้อมกำหนดรายละเอียดการฝึกงาน",
     href: "/teacher/internships/register",
-    cta: "เปิดฟอร์มลงทะเบียน",
+    cta: "ลงทะเบียนการฝึกงาน",
   },
 ];
 
@@ -23,13 +23,12 @@ export default function TeacherPage() {
     <div className="page-wrapper py-10">
       <div className="mx-auto flex max-w-7xl flex-col gap-10 px-6 lg:px-10">
         <header className="space-y-4">
-          <span className="badge badge-secondary badge-outline">TEACHER</span>
+          <span className="badge badge-secondary badge-outline">ครู</span>
           <h1 className="text-4xl font-bold text-base-content">
-            พื้นที่สำหรับครูนิเทศ
+            แดชบอร์ดครูนิเทศ
           </h1>
           <p className="text-lg text-base-content/70">
-            จัดการนักศึกษาและข้อมูลการฝึกงานได้ครบวงจร
-            ตั้งแต่การสร้างบัญชีไปจนถึงติดตามความคืบหน้าและประเมินผลในที่เดียว
+            จัดการนักศึกษาและสถานประกอบการที่ดูแล พร้อมติดตามบันทึกและแบบประเมินจากทุกฝ่ายในที่เดียว
           </p>
         </header>
 
@@ -60,7 +59,7 @@ export default function TeacherPage() {
 
         <section className="grid gap-6">
           <h2 className="text-2xl font-semibold text-base-content">
-            ภาพรวมการฝึกงานในระบบ
+            ภาพรวมการฝึกงานของนักศึกษาที่คุณดูแล
           </h2>
           <AppDashboard />
         </section>
